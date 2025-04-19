@@ -1,0 +1,318 @@
+# LinkedIn post 1
+
+Andrew Ng's team once made a mistake in a paper.
+
+(It happened due to random splitting)
+
+It is common to generate train and validation sets using random splitting.
+
+However, in many situations, it can be fatal for model building.
+
+Consider building a model that generates captions for images.
+
+Due to the inherent nature of language, every image can have many different captions.
+
+This dataset will be like this:
+↳ (Image-1, Caption-1)
+↳ (Image-1, Caption-2)
+↳ (Image-1, Caption-3)
+↳ (Image-2, Caption-1)
+↳ (Image-2, Caption-2)
+↳ and so on...
+
+If we use random splitting:
+- the same data point (image) will be available in the train and validation sets.
+
+As a result, we end up evaluating the model on instances it was trained on.
+
+This is an example of data leakage (also called group leakage), resulting in overfitting!
+
+Group shuffle split solves this.
+
+There are two steps:
+1) Group all training instances corresponding to one image.
+2) After grouping, the ENTIRE GROUP (all examples of one image) must be randomly dedicated to the train or validation set.
+
+This will prevent the group leakage.
+
+The same thing happened in Andrew Ng's paper where they prepared a medical dataset to detect pneumonia.
+- Total images = 112k
+- Total patients = 30k
+
+Due to random splitting, the same patient's images were available both in train and validation sets.
+
+This unknowingly led to data leakage and validation scores looked much better than they should have.
+
+A few days later, the team updated the paper after using the group shuffle split strategy to ensure the same patients did not end up in both train and validation sets.
+
+P.S. It is natural to make mistakes. That's how we grow. It is important we learn from them.
+
+👉 P.P.S. Will you be double cautious now during data splitting?
+____
+If you want to learn AI/ML engineering, I have put together a free PDF (530+ pages) with 150+ core DS/ML lessons. 
+
+Get here: https://lnkd.in/gi6xKmDc
+____
+Find me → Avi Chawla
+Every day, I share tutorials and insights on DS, ML, LLMs, and RAGs.
+
+<<<<------>>>>
+
+# LinkedIn post 2
+
+Mixture of Experts vs. Transformers, explained visually:
+
+(it's a popular LLM interview question)
+
+Mixture of Experts (MoE) is a popular architecture that uses different "experts" to improve Transformer models.
+
+As shown in the visual below, Transformer and MoE mainly differ in the decoder block:
+
+- Transformer uses a feed-forward network.
+- MoE uses experts, which are feed-forward networks but smaller compared to that in Transformer.
+
+During inference, a subset of experts are selected. This makes inference faster in MoE.
+
+Since the network has multiple decoder layers:
+- the text passes through different experts across layers.
+- the chosen experts also differ between tokens.
+
+But how does the model decide which experts should be ideal?
+
+The router does that.
+
+The router is like a multi-class classifier that produces softmax scores over experts. Based on the scores, we select the top K experts.
+
+The router is trained with the network and it learns to select the best experts.
+
+But it isn't straightforward.
+
+There are challenges!
+
+Challenge 1) Notice this pattern at the start of training:
+
+- Say the model selects "Expert 2"
+- This expert gets a bit better
+- It may get selected again
+- The expert learns more
+- It gets selected again
+- It learns more
+- And so on!
+
+Essentially, a few experts could be over-exposed to training while many experts may go under-trained!
+
+We solve this in two steps:
+
+- Add noise to the feed-forward output of the router so that other experts can get higher logits.
+- Set all but top K logits to -infinity. After softmax, these scores become zero.
+
+ This way, other experts also get the opportunity to train.
+
+Challenge 2) Some experts may get exposed to more tokens than others—leading to under-trained experts.
+
+We prevent this by limiting the number of tokens an expert can process.
+
+If an expert reaches the limit, the input token is passed to the next best expert instead.
+
+In terms of parameters, MoEs have more parameters to load. However, a fraction of them are activated since we only select some experts.
+
+This leads to faster inference. Mixtral 8x7B is one famous LLM that is based on MoE.
+
+Over to you: Do you like the strategy of multiple experts instead of a single feed-forward network?
+____
+If you want to learn AI/ML engineering, I have put together a free PDF (530+ pages) with 150+ core DS/ML lessons. 
+
+Get here: https://lnkd.in/gi6xKmDc
+____
+Find me → Avi Chawla
+Every day, I share tutorials and insights on DS, ML, LLMs, and RAGs.
+
+<<<<------>>>>
+
+# LinkedIn post 3
+
+"Explain KV caching in LLMs"—popular interview question
+
+Here's how to answer: 
+
+KV caching is a technique used to speed up LLM inference.
+
+To understand KV caching, we must know how LLMs output tokens.
+
+- Transformer produces hidden states for all tokens.
+- Hidden states are projected to vocab space.
+- Logits of the last token is used to generate the next token.
+- Repeat for subsequent tokens.
+
+Thus, to generate a new token, we only need the hidden state of the most recent token.
+
+None of the other hidden states are required.
+
+Next, let's see how the last hidden state is computed within the transformer layer from the attention mechanism.
+
+During attention:
+
+The last row of query-key-product involves:
+- the last query vector.
+- all key vectors.
+
+Also, the last row of the final attention result involves:
+- the last query vector.
+- all key & value vectors.
+
+The above insight suggests that to generate a new token, every attention operation in the network only needs:
+
+- query vector of the last token.
+- all key & value vectors.
+
+But, there's one more key insight here.
+
+As we generate new tokens:
+
+- The KV vectors used for ALL previous tokens do not change.
+
+Thus, we just need to generate a KV vector for the token generated one step before.
+
+The rest of the KV vectors can be retrieved from a cache to save compute and time.
+
+This is called KV caching!
+
+To reiterate, instead of redundantly computing KV vectors of all context tokens, cache them.
+
+To generate a token:
+- Generate QKV vector for the token generated one step before.
+- Get all other KV vectors from the cache.
+- Compute attention.
+
+KV caching saves time during inference. Find a video in the comments depicting this.
+
+In fact, this is why ChatGPT takes some time to generate the first token than the subsequent tokens.
+
+During that time, it is computing the KV cache of the prompt.
+
+That said, KV cache also takes a lot of memory.
+
+Consider Llama3-70B:
+- total layers = 80
+- hidden size = 8k
+- max output size = 4k
+
+Here:
+- Every token takes up ~2.5 MB in KV cache.
+- 4k tokens will take up 10.5 GB.
+
+More users → more memory.
+
+I'll cover KV optimization soon.
+
+Over to you: Does KV caching make LLMs more practically useful?
+
+--
+If you want to learn AI/ML engineering, I have put together a free PDF (530+ pages) with 150+ core DS/ML lessons. 
+
+Get here: https://lnkd.in/gi6xKmDc
+
+<<<<------>>>>
+
+# LinkedIn post 4
+
+5 most popular Agentic AI design patterns, clearly explained (with visuals):
+.
+.
+Agentic behaviors allow LLMs to refine their output by incorporating self-evaluation, planning, and collaboration!
+
+The following visual depicts the 5 most popular design patterns employed in building AI agents.
+
+1) Reflection pattern:
+- The AI reviews its own work to spot mistakes and iterate until it produces the final response.
+
+2) Tool use pattern
+
+Tools allow LLMs to gather more information by:
+- Querying a vector database
+- Executing Python scripts
+- Invoking APIs, etc.
+
+This is helpful since the LLM is not solely reliant on its internal knowledge.
+
+3) ReAct (Reason and Act) pattern
+
+ReAct combines the above two patterns:
+- The Agent can reflect on the generated outputs.
+- It can interact with the world using tools.
+
+This makes it one of the most powerful patterns used today.
+
+4) Planning pattern
+
+Instead of solving a request in one go, the AI creates a roadmap by:
+- Subdividing tasks
+- Outlining objectives
+
+This strategic thinking can solve tasks more effectively.
+
+5) Multi-Agent pattern
+
+- We have several agents.
+- Each agent is assigned a dedicated role and task.
+- Each agent can also access tools.
+
+All agents work together to deliver the final outcome, while delegating task to other agents if needed.
+
+I'll soon dive deep into each of these patterns, showcasing real-world use cases and code implementations.
+
+👉 Over to you: Which Agentic pattern do you find the most useful? 
+
+--
+If you want to learn AI/ML engineering, I have put together a free PDF (530+ pages) with 150+ core DS/ML lessons. 
+
+Get here: https://lnkd.in/gi6xKmDc
+--
+
+Find me → Avi Chawla
+Every day, I share tutorials and insights on DS, ML, LLMs, and RAGs.
+
+<<<<------>>>>
+
+# LinkedIn post 5
+
+Here's how to make regression models more "useful"
+
+A point estimate from a regression model isn’t useful in many cases.
+
+Consider you have data from several job roles. There's a model that predicts the expected salary based on job title, years of experience, education level, etc.
+
+A regression model will provide a scalar salary estimate based on the inputs.
+
+But a single value of, say, $80k isn’t quite useful, is it?
+
+If people are using your platform to assess their profile...
+
+...then getting an expected range or quantiles to help them better assess the best-case and worst-case scenarios is MUCH MORE USEFUL to them.
+
+- 25th percentile → $65k. This means that 25% of employees in similar roles earn $65k or less.
+- 50th percentile (the median) → $80k. This represents the middle point in the distribution.
+- 75th percentile → $95k. This means that 25% of employees earn $95k or more.
+
+In fact, following this process makes sense since there’s always a distribution along the target variable. However, a point estimate does not fully reflect that by just outputting the mean.
+
+Quantile regression solves this.
+
+The idea is to estimate the quantiles of the response variable conditioned on the input.
+
+Unlike ordinary least squares (OLS), which estimates the mean of the dependent variable for given values of the predictors...
+
+...Quantile regression can provide estimates for various quantiles, such as the 25th, 50th, and 75th percentiles.
+
+In my experience, these models typically work pretty well with tree-based regression models.
+
+In fact, models like lightgbm regression inherently support quantile objection functions.
+
+I published a visual explanation of how it works in the Daily Dose of Data Science newsletter if you want to learn more: https://lnkd.in/gq-JDtyn
+
+👉 Over to you: There are several ways you can make use of Quantile regression in your models. Can you identify one?
+
+--
+If you want to learn AI/ML engineering, I have put together a free PDF (530+ pages) with 150+ core DS/ML lessons. 
+
+Get here: https://lnkd.in/gi6xKmDc
