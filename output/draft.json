@@ -5,6 +5,58 @@
       "content": "5 Chunking Strategies For RAG",
       "is_hook": true,
       "media_urls": []
+    },
+    {
+      "content": "RAG is revolutionizing NLP by storing information as vectors. Efficient chunking of documents ensures optimal input sizes for embedding models. Let's explore five effective strategies!",
+      "is_hook": false,
+      "media_urls": [
+        "https://substackcdn.com/image/fetch/w_1456,c_limit,f_auto,q_auto:good,fl_lossy/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F6878b8fa-5e74-45a1-9a89-5aab92889126_2366x990.gif"
+      ]
+    },
+    {
+      "content": "1\ufe0f\u20e3 Fixed-size Chunking: This method splits documents into equal-sized segments. \u26a0\ufe0f However, it risks losing semantic flow. Overlap strategies can help retain context!",
+      "is_hook": false,
+      "media_urls": [
+        "https://substackcdn.com/image/fetch/w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F98c422a0-f0e2-457c-a256-4476a56a601f_943x232.png"
+      ]
+    },
+    {
+      "content": "2\ufe0f\u20e3 Semantic Chunking: Here, chunks are formed based on meaningful units like sentences and paragraphs. By evaluating cosine similarity between embeddings, we maintain semantic integrity.",
+      "is_hook": false,
+      "media_urls": [
+        "https://substackcdn.com/image/fetch/w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa6ad83a6-2879-4c77-9e49-393f16577aef_1066x288.gif"
+      ]
+    },
+    {
+      "content": "3\ufe0f\u20e3 Recursive Chunking: This strategy begins with initial segmentation based on document structure, followed by further division, striking a balance between coherence and granularity.",
+      "is_hook": false,
+      "media_urls": [
+        "https://substackcdn.com/image/fetch/w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff4009caa-34fc-48d6-8102-3d0f6f2c1386_1066x316.gif"
+      ]
+    },
+    {
+      "content": "4\ufe0f\u20e3 Document Structure-based Chunking: This approach harnesses the inherent structure of document headings to set chunk boundaries. It preserves logical sections, though may yield uneven chunk sizes.",
+      "is_hook": false,
+      "media_urls": [
+        "https://substackcdn.com/image/fetch/w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fe8febecd-ee68-42ff-ab06-41a0a3a43cd3_1102x306.gif"
+      ]
+    },
+    {
+      "content": "5\ufe0f\u20e3 LLM-based Chunking: By leveraging language models' capabilities, this strategy generates semantically rich chunks. However, it does come at a higher computational cost due to context limitations.",
+      "is_hook": false,
+      "media_urls": [
+        "https://substackcdn.com/image/fetch/w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F4d1b6d"
+      ]
+    },
+    {
+      "content": "\ud83d\udd11 Key Takeaway: The right chunking strategy significantly influences the performance of NLP systems. Understand the trade-offs to optimize your solutions in production!",
+      "is_hook": false,
+      "media_urls": []
+    },
+    {
+      "content": "\ud83d\udca1 Curious about how to implement these strategies effectively? Let\u2019s discuss more in the comments!",
+      "is_hook": false,
+      "media_urls": []
     }
   ]
 }
