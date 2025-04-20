@@ -106,7 +106,7 @@ class ContentPlanningState(BaseModel):
     blog_post_url: str = Field(default="https://blog.dailydoseofds.com/p/5-chunking-strategies-for-rag")
 
     # Path where the scrapped content will be stored
-    draft_path: Path = "assets/"
+    draft_path: Path = "asset/"
 
     # Determines whether to create a Twitter or LinkedIn post 
     post_type: str = "twitter"  
